@@ -91,13 +91,20 @@ jobs:
         echo "$(
           jq \
             --arg github_workspace ${{ github.workspace }} \
-            '. | ( .runs[].results[].locations[].physicalLocation.artifactLocation.uri |= if test($github_workspace) then .[($github_workspace | length | . + 1):] else . end )' \
+            '. | ( .runs[].results[].loca#tions[].physicalLocation.artifactLocation.uri |= if test($github_workspace) then .[($github_workspace | length | . + 1):] else . end )' \
             ${{ github.workspace }}/detekt.sarif.json
         )" > ${{ github.workspace }}/detekt.sarif.json
 
-    # Uploads results to GitHub repository using the upload-sarif action
-    - uses: github/codeql-action/upload-sarif@v2
+
+    - name: Upload APK
+      uses: actions/upload-artifact@v2
       with:
+         name: app-debug
+         path:  ${{ github.workspace }}/detekt.sarif.json  
+
+    # Uploads results to GitHub repository using the upload-sarif action
+    # - uses: github/codeql-action/upload-sarif@v2
+    #  with:
         # Path to SARIF file relative to the root of the repository
-        sarif_file: ${{ github.workspace }}/detekt.sarif.json
-        checkout_path: ${{ github.workspace }}
+    #    sarif_file: ${{ github.workspace }}/detekt.sarif.json
+    #    checkout_path: ${{ github.workspace }}
